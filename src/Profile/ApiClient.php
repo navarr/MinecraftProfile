@@ -17,13 +17,13 @@ class ApiClient {
 
     public function uuidApi($username) {
 
-        $contextOptions = [
-            'http' => [
+        $contextOptions = array(
+            'http' => array(
                 'method' => 'POST',
                 'header' => 'Content-type: application/json',
                 'content' => '{"agent":"minecraft","name":"'.str_replace('"', '\"', $username).'"}',
-            ],
-        ];
+            ),
+        );
 
         $json = file_get_contents(static::UUID_API, false, stream_context_create($contextOptions));
         if ($json === false || empty($json)) {
