@@ -16,11 +16,11 @@ use GuzzleHttp\Client;
  */
 class Profile
 {
-    private $uuid;
-    private $name;
-    private $public = true;
-    private $capeUrl = null;
-    private $skinUrl = null;
+    public $uuid;
+    public $name;
+    public $public = true;
+    public $capeUrl = null;
+    public $skinUrl = null;
 
 
     /**
@@ -100,7 +100,7 @@ class Profile
     /**
      * @return ApiClient
      */
-    private static function createApiClient()
+    protected static function createApiClient()
     {
         return new ApiClient(new Client);
     }
