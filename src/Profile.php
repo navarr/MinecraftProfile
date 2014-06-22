@@ -3,6 +3,7 @@
 namespace Navarr\Minecraft;
 
 use Navarr\Minecraft\Profile\ApiClient;
+use GuzzleHttp\Client;
 
 /**
  * Class Profile
@@ -34,9 +35,8 @@ class Profile
             $apiClient = static::createApiClient();
         }
 
-        $return = $apiClient->profileApi($uuid);
+        $json = $apiClient->profileApi($uuid);
 
-        $json = json_decode($return);
         if (is_null($json) || !isset($json->properties) || empty($json->properties) || !isset($json->properties[0]->value)) {
             throw new \RuntimeException('Error parsing JSON for UUID ' . $uuid);
         }
@@ -84,10 +84,7 @@ class Profile
 
         $apiResult = $apiClient->uuidApi($username);
 
-        $json = json_decode($apiResult);
-        if ($json === null || empty($json)) {
-            throw new \RuntimeException('Error decoding JSON for user ' . $username);
-        }
+        $json = $apiResult;
 
         if (isset($json->error)) {
             throw new \RuntimeException('Mojang Error: ' . $json->errorMessage);
@@ -105,7 +102,7 @@ class Profile
      */
     private static function createApiClient()
     {
-        return new ApiClient();
+        return new ApiClient(new Client);
     }
 
     public function __get($var)

@@ -2,6 +2,8 @@
 
 namespace Navarr\Minecraft\Profile;
 
+use GuzzleHttp\ClientInterface;
+
 /**
  * Class ApiClient
  *
@@ -15,30 +17,46 @@ class ApiClient {
     const PROFILE_API = "https://sessionserver.mojang.com/session/minecraft/profile/%s";
     const UUID_API = "https://api.mojang.com/profiles";
 
+    /**
+     * Guzzle client instance.
+     *
+     * @var ClientInterface
+     */
+    public $client;
+
+    public function __construct(ClientInterface $client)
+    {
+        $this->client = $client;
+    }
+
     public function uuidApi($username) {
 
-        $contextOptions = array(
-            'http' => array(
-                'method' => 'POST',
-                'header' => 'Content-type: application/json',
-                'content' => '{"agent":"minecraft","name":"'.str_replace('"', '\"', $username).'"}',
-            ),
-        );
+        $response = $this->client->post(static::UUID_API, array(
+            'headers' => array('Content-Type' => 'application/json'),
+            'body' => json_encode(array(
+                'agent' => 'minecraft',
+                'name' => $username
+            ))
+        ))->json(array('object' => true));
 
-        $json = file_get_contents(static::UUID_API, false, stream_context_create($contextOptions));
-        if ($json === false || empty($json)) {
-            throw new \RuntimeException('Invalid Username ('.$username.')');
+        if (!$response) {
+            throw new \RuntimeException('Bad JSON from API: on username ' . $username);
+        } elseif (isset($response->error)) {
+            throw new \RuntimeException('Error from API: ' . $response->error . ' on username ' . $username);
         }
 
-        return $json;
+        return $response;
     }
 
     public function profileApi($uuid) {
-        $return = file_get_contents(sprintf(static::PROFILE_API, $uuid));
-        if ($return === false || empty($return)) {
-            throw new \RuntimeException('Invalid UUID ('.$uuid.')');
+        $response = $this->client->get(sprintf(static::PROFILE_API, $uuid))->json(array('object' => true));
+
+        if (!$response) {
+            throw new \RuntimeException('Bad UUID ' . $uuid);
+        } elseif (isset($response->error)) {
+            throw new \RuntimeException('Error from API: ' . $response->error . ' on UUID ' . $uuid);
         }
 
-        return $return;
+        return $response;
     }
 }
