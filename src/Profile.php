@@ -102,7 +102,9 @@ class Profile
      */
     protected static function createApiClient()
     {
-        return new ApiClient(new Client);
+        $client = new Client();
+        $client->setDefaultOption('verify', __DIR__ . '/../data/cacert.pem');
+        return new ApiClient($client);
     }
 
     public function __get($var)
