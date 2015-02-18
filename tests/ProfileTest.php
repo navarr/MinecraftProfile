@@ -11,14 +11,14 @@ class Tests extends PHPUnit_Framework_TestCase
     public function testFromUsername()
     {
         $this->mojangBuster();
-        $profile = Profile::fromUsername('Navarr');
+        $profile = Profile::fromUsername('Navarr', $this->getClient());
         $this->asserts($profile);
     }
 
     public function testFromUuid()
     {
         $this->mojangBuster();
-        $profile = Profile::fromUuid('bd95beec116b4d37826c373049d3538b');
+        $profile = Profile::fromUuid('bd95beec116b4d37826c373049d3538b', $this->getClient());
         $this->asserts($profile);
     }
 
@@ -44,5 +44,12 @@ class Tests extends PHPUnit_Framework_TestCase
     private function mojangBuster()
     {
         sleep(2);
+    }
+
+    private function getClient()
+    {
+        $client = new Client();
+        $client->setDefaultOption('verify', __DIR__ . '/../data/cacert.pem');
+        return new ApiClient($client);
     }
 }
