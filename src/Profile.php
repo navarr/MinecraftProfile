@@ -93,7 +93,7 @@ class Profile
         if (empty($json->profiles) || !isset($json->profiles[0]->id)) {
             throw new \RuntimeException('Invalid Username (' . $username . ')');
         }
-        usleep(250);
+        usleep(500);
         return static::fromUuid($json->profiles[0]->id);
     }
 
