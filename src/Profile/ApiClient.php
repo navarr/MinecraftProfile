@@ -15,7 +15,7 @@ use GuzzleHttp\ClientInterface;
  */
 class ApiClient {
     const PROFILE_API = "https://sessionserver.mojang.com/session/minecraft/profile/%s";
-    const UUID_API = "https://api.mojang.com/profiles";
+    const UUID_API = "https://api.mojang.com/profiles/minecraft";
 
     /**
      * Guzzle client instance.
@@ -33,10 +33,7 @@ class ApiClient {
 
         $response = $this->client->post(static::UUID_API, array(
             'headers' => array('Content-Type' => 'application/json'),
-            'body' => json_encode(array(
-                'agent' => 'minecraft',
-                'name' => $username
-            ))
+            'body' => json_encode(array($username))
         ))->json(array('object' => true));
 
         if (!$response) {

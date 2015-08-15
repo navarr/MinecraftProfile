@@ -24,8 +24,9 @@ class Tests extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Invalid Username (Nav"arr)
+     * @expectedExceptionMessage Bad JSON from API: on username Nav"arr
      */
+    // TODO: Current exception is stupid and ugly. Maybe we should use regex for this case?
     public function testBadUsername()
     {
         $this->mojangBuster();
@@ -37,7 +38,7 @@ class Tests extends PHPUnit_Framework_TestCase
         $this->assertEquals('Navarr', $profile->name);
         $this->assertTrue($profile->public);
         $this->assertEquals('http://textures.minecraft.net/texture/95a2d2d94942966f743b84e4c262631978253979db673c2fbcc27dc3d2dcc7a7', $profile->capeUrl);
-        $this->assertEquals('http://textures.minecraft.net/texture/5112ebb7f5d7bdc5b57532af14408fbb757692ad81cc717e4c1faecdb9e3a2b5', $profile->skinUrl);
+        $this->assertEquals('http://textures.minecraft.net/texture/91ebe08670c7af37a9ff439fb93290d75e35632dfbe3bf2ba3ac8494eb6e7', $profile->skinUrl);
     }
 
     /* To Prevent 429 */

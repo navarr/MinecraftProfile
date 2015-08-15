@@ -90,11 +90,11 @@ class Profile
             throw new \RuntimeException('Mojang Error: ' . $json->errorMessage);
         }
 
-        if (empty($json->profiles) || !isset($json->profiles[0]->id)) {
+        if (empty($json) || !isset($json[0]->id)) {
             throw new \RuntimeException('Invalid Username (' . $username . ')');
         }
 
-        return static::fromUuid($json->profiles[0]->id);
+        return static::fromUuid($json[0]->id);
     }
 
     /**
