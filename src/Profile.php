@@ -123,7 +123,7 @@ class Profile
     				$obj = new \stdClass();
     				$obj->name = $piece->name;
     				$obj->last_updated = (!isset($piece->changedToAt)) ? 'Current' : $piece->changedToAt;
-    				$history[] = $obj;
+    				$collection[] = $obj;
     			}
     		break;
     	}
