@@ -96,6 +96,40 @@ class Profile
 
         return static::fromUuid($json->profiles[0]->id);
     }
+    
+    /**
+     * This function returns 
+     * 
+     * @param string $case
+     * @param string $uuid
+     * @throws \RuntimeException
+     * @return array
+     */
+    public function alsoGet($case, $uuid)
+    {
+    	$apiClient = static::createApiClient();
+    	$collection = array();
+    	switch($case) {
+    		case	'history':
+    			$apiResult = $apiClient->historyApi($uuid);
+    			
+    			$json = $apiResult;
+    
+    			if (isset($json->error)) {
+    				throw new \RuntimeException('Mojang Error: ' . $json->errorMessage);
+    			}
+    			
+    			foreach($json as $piece) {
+    				$obj = new \stdClass();
+    				$obj->name = $piece->name;
+    				$obj->last_updated = (!isset($piece->changedToAt)) ? 'Current' : $piece->changedToAt;
+    				$collection[] = $obj;
+    			}
+    		break;
+    	}
+    	
+    	return $collection;
+    }
 
     /**
      * @return ApiClient

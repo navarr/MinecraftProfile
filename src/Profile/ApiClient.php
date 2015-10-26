@@ -16,6 +16,7 @@ use GuzzleHttp\ClientInterface;
 class ApiClient {
     const PROFILE_API = "https://sessionserver.mojang.com/session/minecraft/profile/%s";
     const UUID_API = "https://api.mojang.com/profiles";
+    const UUID_HISTORY_API = "https://api.mojang.com/user/profiles/%s/names";
 
     /**
      * Guzzle client instance.
@@ -26,6 +27,7 @@ class ApiClient {
 
     public function __construct(ClientInterface $client)
     {
+    	$client->setDefaultOption('verify', false);
         $this->client = $client;
     }
 
@@ -58,5 +60,17 @@ class ApiClient {
         }
 
         return $response;
+    }
+    
+    public function historyApi($uuid) {
+    	$response = $this->client->get(sprintf(static::UUID_HISTORY_API, $uuid))->json(array('object' => true));
+    	
+    	if (!$response) {
+    		throw new \RuntimeException('Bad UUID ' . $uuid);
+    	} elseif (isset($response->error)) {
+    		throw new \RuntimeException('Error from API: ' . $response->error . ' on UUID ' . $uuid);
+    	}
+    	
+    	return $response;
     }
 }
