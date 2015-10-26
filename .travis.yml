@@ -11,6 +11,8 @@ matrix:
     - php: hhvm
     - php: 7.0
 
+sudo: false
+
 install:
   - composer self-update && composer --version
   - composer install --prefer-dist --dev
