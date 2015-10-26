@@ -27,6 +27,7 @@ class ApiClient {
     public function __construct(ClientInterface $client)
     {
         $this->client = $client;
+        $this->client->setDefaultOption('verify', __DIR__.'/../../data/cacert.pem');
     }
 
     public function uuidApi($username) {

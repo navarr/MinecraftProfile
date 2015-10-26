@@ -8,6 +8,9 @@ use PHPUnit_Framework_TestCase;
 
 class Tests extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @medium
+     */
     public function testFromUsername()
     {
         $this->mojangBuster();
@@ -15,6 +18,9 @@ class Tests extends PHPUnit_Framework_TestCase
         $this->asserts($profile);
     }
 
+    /**
+     * @medium
+     */
     public function testFromUuid()
     {
         $this->mojangBuster();
@@ -44,6 +50,7 @@ class Tests extends PHPUnit_Framework_TestCase
     /* To Prevent 429 */
     private function mojangBuster()
     {
+        // Mojang is something stupid like "600 per 10 minutes - so 1 per second and enforces it"
         sleep(2);
     }
 

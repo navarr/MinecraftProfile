@@ -93,7 +93,7 @@ class Profile
         if (empty($json) || !isset($json[0]->id)) {
             throw new \RuntimeException('Invalid Username (' . $username . ')');
         }
-
+        static::rateLimitBust();
         return static::fromUuid($json[0]->id);
     }
 
@@ -116,5 +116,10 @@ class Profile
     public function __isset($var)
     {
         return isset($this->{$var});
+    }
+
+    private static function rateLimitBust()
+    {
+        sleep(1);
     }
 }
