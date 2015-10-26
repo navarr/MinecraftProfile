@@ -19,4 +19,4 @@ $skin = $profile->skinUrl;
 ```
 
 History can also be acquired without getting the profile first by passing in the uuid. Use the `Profile::fromUsername` 
-function to get the uuid otherwise. 
+ function to get the uuid otherwise. 

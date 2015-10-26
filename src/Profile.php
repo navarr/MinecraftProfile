@@ -108,7 +108,7 @@ class Profile
     public function alsoGet($case, $uuid)
     {
     	$apiClient = static::createApiClient();
-    	$history = array();
+    	$collection = array();
     	switch($case) {
     		case	'history':
     			$apiResult = $apiClient->historyApi($uuid);
@@ -128,7 +128,7 @@ class Profile
     		break;
     	}
     	
-    	return $history;
+    	return $collection;
     }
 
     /**
