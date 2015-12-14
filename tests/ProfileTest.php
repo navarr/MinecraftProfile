@@ -2,11 +2,11 @@
 
 namespace Navarr\Minecraft\Profile;
 
-use Navarr\Minecraft\Profile;
 use GuzzleHttp\Client;
+use Navarr\Minecraft\Profile;
 use PHPUnit_Framework_TestCase;
 
-class Tests extends PHPUnit_Framework_TestCase
+class ProfileTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @medium
@@ -33,13 +33,15 @@ class Tests extends PHPUnit_Framework_TestCase
      * @expectedExceptionMessage Bad JSON from API: on username Nav"arr
      */
     // TODO: Current exception is stupid and ugly. Maybe we should use regex for this case?
+
     public function testBadUsername()
     {
         $this->mojangBuster();
         Profile::fromUsername('Nav"arr');
     }
 
-    private function asserts(Profile $profile) {
+    private function asserts(Profile $profile)
+    {
         $this->assertEquals('bd95beec116b4d37826c373049d3538b', $profile->uuid);
         $this->assertEquals('Navarr', $profile->name);
         $this->assertTrue($profile->public);
@@ -48,6 +50,7 @@ class Tests extends PHPUnit_Framework_TestCase
     }
 
     /* To Prevent 429 */
+
     private function mojangBuster()
     {
         // Mojang is something stupid like "600 per 10 minutes - so 1 per second and enforces it"
@@ -57,7 +60,8 @@ class Tests extends PHPUnit_Framework_TestCase
     private function getClient()
     {
         $client = new Client();
-        $client->setDefaultOption('verify', __DIR__ . '/../data/cacert.pem');
+        $client->setDefaultOption('verify', __DIR__.'/../data/cacert.pem');
+
         return new ApiClient($client);
     }
 }

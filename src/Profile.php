@@ -2,12 +2,12 @@
 
 namespace Navarr\Minecraft;
 
-use Navarr\Minecraft\Profile\ApiClient;
 use GuzzleHttp\Client;
+use Navarr\Minecraft\Profile\ApiClient;
 
 /**
- * Class Profile
- * @package Navarr\Minecraft\Profile
+ * Class Profile.
+ *
  * @property string $uuid
  * @property string $name
  * @property bool $public Whether or not the profile is public
@@ -22,11 +22,12 @@ class Profile
     public $capeUrl = null;
     public $skinUrl = null;
 
-
     /**
-     * @param string $uuid
+     * @param string            $uuid
      * @param Profile\ApiClient $apiClient
+     *
      * @throws \RuntimeException
+     *
      * @return Profile
      */
     public static function fromUuid($uuid, ApiClient $apiClient = null)
@@ -38,19 +39,19 @@ class Profile
         $json = $apiClient->profileApi($uuid);
 
         if (is_null($json) || !isset($json->properties) || empty($json->properties) || !isset($json->properties[0]->value)) {
-            throw new \RuntimeException('Error parsing JSON for UUID ' . $uuid);
+            throw new \RuntimeException('Error parsing JSON for UUID '.$uuid);
         }
 
         $properties = base64_decode($json->properties[0]->value);
         if ($properties === false) {
-            throw new \RuntimeException('Error parsing base64 properties for UUID ' . $uuid);
+            throw new \RuntimeException('Error parsing base64 properties for UUID '.$uuid);
         }
         $properties = json_decode($properties);
         if (is_null($properties)) {
-            throw new \RuntimeException('Error parsing JSON encoded properties for UUID ' . $uuid);
+            throw new \RuntimeException('Error parsing JSON encoded properties for UUID '.$uuid);
         }
 
-        $profile = new Profile();
+        $profile = new self();
         $profile->uuid = $json->id;
         $profile->name = $json->name;
         if (isset($properties->isPublic)) {
@@ -71,9 +72,11 @@ class Profile
     /**
      * For gods' sakes, use a UUID.
      *
-     * @param string $username
+     * @param string            $username
      * @param Profile\ApiClient $apiClient
+     *
      * @throws \RuntimeException
+     *
      * @return Profile
      */
     public static function fromUsername($username, ApiClient $apiClient = null)
@@ -87,13 +90,14 @@ class Profile
         $json = $apiResult;
 
         if (isset($json->error)) {
-            throw new \RuntimeException('Mojang Error: ' . $json->errorMessage);
+            throw new \RuntimeException('Mojang Error: '.$json->errorMessage);
         }
 
         if (empty($json) || !isset($json[0]->id)) {
-            throw new \RuntimeException('Invalid Username (' . $username . ')');
+            throw new \RuntimeException('Invalid Username ('.$username.')');
         }
         static::rateLimitBust();
+
         return static::fromUuid($json[0]->id);
     }
 
@@ -110,7 +114,8 @@ class Profile
         if (isset($this->{$var})) {
             return $this->{$var};
         }
-        return null;
+
+        return;
     }
 
     public function __isset($var)
