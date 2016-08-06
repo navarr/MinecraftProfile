@@ -61,6 +61,7 @@ class ProfileTest extends PHPUnit_Framework_TestCase
     private function getClient()
     {
         $client = new Client();
+
         return new ApiClient($client);
     }
 }
