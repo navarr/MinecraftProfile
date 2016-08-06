@@ -1,4 +1,6 @@
-## Minecraft Profile API in PHP
+# Minecraft Profile API in PHP
+
+## Usage
 
 Usage is super simple and well documented.  Here's a short example:
 
@@ -10,3 +12,11 @@ $username = $profile->name;
 $cape = $profile->capeUrl;
 $skin = $profile->skinUrl;
 ```
+
+## Installation
+
+MinecraftProfile uses Composer.  For more information about composer, read the [Getting Started](https://getcomposer.org/doc/00-intro.md) document.
+
+To install with composer:
+
+> `composer install navarr/minecraft-profile`
