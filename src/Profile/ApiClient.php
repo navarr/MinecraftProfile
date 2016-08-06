@@ -3,6 +3,7 @@
 namespace Navarr\Minecraft\Profile;
 
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Psr7\Request;
 
 /**
  * Class ApiClient.
@@ -26,18 +27,27 @@ class ApiClient
     public function __construct(ClientInterface $client)
     {
         $this->client = $client;
-        $this->client->setDefaultOption('verify', __DIR__.'/../../data/cacert.pem');
+    }
+
+    private function getOptions()
+    {
+        return ['verify' => __DIR__.'/../../data/cacert.pem'];
     }
 
     public function uuidApi($username)
     {
-        $response = $this->client->post(static::UUID_API, [
-            'headers' => ['Content-Type' => 'application/json'],
-            'body'    => json_encode([$username]),
-        ])->json(['object' => true]);
+        $request = new Request(
+            'POST',
+            static::UUID_API,
+            ['Content-Type' => 'application/json'],
+            json_encode([$username])
+        );
+
+        $response = $this->client->send($request, $this->getOptions());
+        $response = @json_decode($response->getBody());
 
         if (!$response) {
-            throw new \RuntimeException('Bad JSON from API: on username '.$username);
+            throw new \RuntimeException('Bad JSON from API: on username '.$username.' - '.json_last_error_msg());
         } elseif (isset($response->error)) {
             throw new \RuntimeException('Error from API: '.$response->error.' on username '.$username);
         }
@@ -47,10 +57,14 @@ class ApiClient
 
     public function profileApi($uuid)
     {
-        $response = $this->client->get(sprintf(static::PROFILE_API, $uuid))->json(['object' => true]);
+        $request = new Request('GET', sprintf(static::PROFILE_API, $uuid));
+        $httpResponse = $this->client->send($request, $this->getOptions());
+        $response = @json_decode($httpResponse->getBody());
 
-        if (!$response) {
+        if ($httpResponse->getStatusCode() != 200) {
             throw new \RuntimeException('Bad UUID '.$uuid);
+        } elseif (!$response) {
+            throw new \RuntimeException('Bad JSON from API: on UUID '.$uuid.' - '.json_last_error_msg());
         } elseif (isset($response->error)) {
             throw new \RuntimeException('Error from API: '.$response->error.' on UUID '.$uuid);
         }

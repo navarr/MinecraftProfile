@@ -74,6 +74,7 @@ class Profile
      *
      * @param string            $username
      * @param Profile\ApiClient $apiClient
+     * @deprecated As Mojang commonly returns a 429 in response
      *
      * @throws \RuntimeException
      *

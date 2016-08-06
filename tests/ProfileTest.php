@@ -37,7 +37,8 @@ class ProfileTest extends PHPUnit_Framework_TestCase
     public function testBadUsername()
     {
         $this->mojangBuster();
-        Profile::fromUsername('Nav"arr');
+        $profile = Profile::fromUsername('Nav"arr');
+        $this->asserts($profile);
     }
 
     private function asserts(Profile $profile)
@@ -45,23 +46,21 @@ class ProfileTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('bd95beec116b4d37826c373049d3538b', $profile->uuid);
         $this->assertEquals('Navarr', $profile->name);
         $this->assertTrue($profile->public);
-        $this->assertEquals('http://textures.minecraft.net/texture/95a2d2d94942966f743b84e4c262631978253979db673c2fbcc27dc3d2dcc7a7', $profile->capeUrl);
+        $this->assertEquals('http://textures.minecraft.net/texture/f2db938abac444ff315b95e9590184e0e2fe8941fdff559a4ab96cd54bcdd', $profile->capeUrl);
         $this->assertEquals('http://textures.minecraft.net/texture/91ebe08670c7af37a9ff439fb93290d75e35632dfbe3bf2ba3ac8494eb6e7', $profile->skinUrl);
     }
 
-    /* To Prevent 429 */
+    /* To Prevent 429 - Barely works */
 
     private function mojangBuster()
     {
         // Mojang is something stupid like "600 per 10 minutes - so 1 per second and enforces it"
-        sleep(2);
+        sleep(3);
     }
 
     private function getClient()
     {
         $client = new Client();
-        $client->setDefaultOption('verify', __DIR__.'/../data/cacert.pem');
-
         return new ApiClient($client);
     }
 }
