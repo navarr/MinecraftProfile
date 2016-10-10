@@ -66,6 +66,8 @@ class Profile
             }
         }
 
+        $profile->history = $apiClient->uuidHistory($uuid);
+
         return $profile;
     }
 
