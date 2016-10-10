@@ -88,7 +88,7 @@ class ApiClient
         }
 
         $history = [];
-        foreach($response as $name){
+        foreach ($response as $name) {
             $history[] = (string)$name->name;
         }
         return $history;
