@@ -3,6 +3,7 @@
 namespace Navarr\Minecraft\Profile;
 
 use GuzzleHttp\Client;
+use Navarr\Minecraft\Adapter\GuzzleAdapter;
 use Navarr\Minecraft\Profile;
 use PHPUnit_Framework_TestCase;
 
@@ -14,7 +15,7 @@ class ProfileTest extends PHPUnit_Framework_TestCase
     public function testFromUsername()
     {
         $this->mojangBuster();
-        $profile = Profile::fromUsername('Navarr', $this->getClient());
+        $profile = Profile::fromUsername('Navarr', $this->getAdapter());
         $this->asserts($profile);
     }
 
@@ -24,20 +25,20 @@ class ProfileTest extends PHPUnit_Framework_TestCase
     public function testFromUuid()
     {
         $this->mojangBuster();
-        $profile = Profile::fromUuid('bd95beec116b4d37826c373049d3538b', $this->getClient());
+        $profile = Profile::fromUuid('bd95beec116b4d37826c373049d3538b', $this->getAdapter());
         $this->asserts($profile);
     }
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Bad JSON from API: on username Nav"arr
+     * @expectedExceptionMessage Malformed response (Unknown)
      */
     // TODO: Current exception is stupid and ugly. Maybe we should use regex for this case?
 
     public function testBadUsername()
     {
         $this->mojangBuster();
-        $profile = Profile::fromUsername('Nav"arr');
+        $profile = Profile::fromUsername('Nav"arr', $this->getAdapter());
         $this->asserts($profile);
     }
 
@@ -45,9 +46,8 @@ class ProfileTest extends PHPUnit_Framework_TestCase
     {
         $this->assertEquals('bd95beec116b4d37826c373049d3538b', $profile->uuid);
         $this->assertEquals('Navarr', $profile->name);
-        $this->assertTrue($profile->public);
-        $this->assertEquals('http://textures.minecraft.net/texture/f2db938abac444ff315b95e9590184e0e2fe8941fdff559a4ab96cd54bcdd', $profile->capeUrl);
-        $this->assertEquals('http://textures.minecraft.net/texture/91ebe08670c7af37a9ff439fb93290d75e35632dfbe3bf2ba3ac8494eb6e7', $profile->skinUrl);
+        $this->assertEquals('http://textures.minecraft.net/texture/f2db938abac444ff315b95e9590184e0e2fe8941fdff559a4ab96cd54bcdd', $profile->getCapeUrl());
+        $this->assertEquals('http://textures.minecraft.net/texture/91ebe08670c7af37a9ff439fb93290d75e35632dfbe3bf2ba3ac8494eb6e7', $profile->getSkinUrl());
     }
 
     /* To Prevent 429 - Barely works */
@@ -55,13 +55,15 @@ class ProfileTest extends PHPUnit_Framework_TestCase
     private function mojangBuster()
     {
         // Mojang is something stupid like "600 per 10 minutes - so 1 per second and enforces it"
-        sleep(3);
+        sleep(60);
     }
 
-    private function getClient()
+    private function getAdapter()
     {
-        $client = new Client();
+        $client = new Client([
+            'verify' => __DIR__ . '/data/cacert.pem'
+        ]);
 
-        return new ApiClient($client);
+        return new GuzzleAdapter($client);
     }
 }
