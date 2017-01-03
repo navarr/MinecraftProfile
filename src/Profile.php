@@ -2,129 +2,146 @@
 
 namespace Navarr\Minecraft;
 
-use GuzzleHttp\Client;
-use Navarr\Minecraft\Profile\ApiClient;
+use Navarr\Minecraft\Adapter\AdapterInterface;
 
-/**
- * Class Profile.
- *
- * @property string $uuid
- * @property string $name
- * @property bool $public Whether or not the profile is public
- * @property string|null $capeUrl
- * @property string|null $skinUrl
- */
 class Profile
 {
+    /**
+     * @var string
+     */
     public $uuid;
+
+    /**
+     * @var string
+     */
     public $name;
-    public $public = true;
-    public $capeUrl = null;
-    public $skinUrl = null;
 
     /**
-     * @param string            $uuid
-     * @param Profile\ApiClient $apiClient
-     *
-     * @throws \RuntimeException
-     *
+     * @var array
+     */
+    public $properties = [];
+
+    /**
+     * @param string $uuid
+     * @param AdapterInterface $adapter
      * @return Profile
      */
-    public static function fromUuid($uuid, ApiClient $apiClient = null)
+    public static function fromUuid($uuid, AdapterInterface $adapter = null)
     {
-        if (is_null($apiClient)) {
-            $apiClient = static::createApiClient();
-        }
+        $minecraftProfile = new MinecraftProfile($adapter);
 
-        $json = $apiClient->profileApi($uuid);
-
-        if (is_null($json) || !isset($json->properties) || empty($json->properties) || !isset($json->properties[0]->value)) {
-            throw new \RuntimeException('Error parsing JSON for UUID '.$uuid);
-        }
-
-        $properties = base64_decode($json->properties[0]->value);
-        if ($properties === false) {
-            throw new \RuntimeException('Error parsing base64 properties for UUID '.$uuid);
-        }
-        $properties = json_decode($properties);
-        if (is_null($properties)) {
-            throw new \RuntimeException('Error parsing JSON encoded properties for UUID '.$uuid);
-        }
-
-        $profile = new self();
-        $profile->uuid = $json->id;
-        $profile->name = $json->name;
-        if (isset($properties->isPublic)) {
-            $profile->public = $properties->isPublic;
-        }
-        if (isset($properties->textures)) {
-            if (isset($properties->textures->SKIN) && isset($properties->textures->SKIN->url)) {
-                $profile->skinUrl = $properties->textures->SKIN->url;
-            }
-            if (isset($properties->textures->CAPE) && isset($properties->textures->CAPE->url)) {
-                $profile->capeUrl = $properties->textures->CAPE->url;
-            }
-        }
-
-        return $profile;
+        return $minecraftProfile->getProfile($uuid);
     }
 
     /**
-     * For gods' sakes, use a UUID.
-     *
-     * @param string            $username
-     * @param Profile\ApiClient $apiClient
-     *
-     * @deprecated As Mojang commonly returns a 429 in response
-     *
-     * @throws \RuntimeException
-     *
+     * @param string $username
+     * @param AdapterInterface $adapter
      * @return Profile
+     * @internal param ApiClient $apiClient
      */
-    public static function fromUsername($username, ApiClient $apiClient = null)
+    public static function fromUsername($username, AdapterInterface $adapter = null)
     {
-        if (is_null($apiClient)) {
-            $apiClient = static::createApiClient();
-        }
+        $minecraftProfile = new MinecraftProfile($adapter);
 
-        $apiResult = $apiClient->uuidApi($username);
-
-        $json = $apiResult;
-
-        if (isset($json->error)) {
-            throw new \RuntimeException('Mojang Error: '.$json->errorMessage);
-        }
-
-        if (empty($json) || !isset($json[0]->id)) {
-            throw new \RuntimeException('Invalid Username ('.$username.')');
-        }
-        static::rateLimitBust();
-
-        return static::fromUuid($json[0]->id);
+        return $minecraftProfile->getProfileViaUsername($username);
     }
 
     /**
-     * @return ApiClient
+     * Profile constructor.
+     * @param \stdClass|null $data
      */
-    protected static function createApiClient()
+    public function __construct(\stdClass $data = null)
     {
-        return new ApiClient(new Client());
-    }
+        if ($data) {
+            $this->uuid = $data->id;
+            $this->name = $data->name;
 
-    public function __get($var)
-    {
-        if (isset($this->{$var})) {
-            return $this->{$var};
+            if (isset($data->properties)) {
+                foreach ($data->properties as $property) {
+                    $value = null;
+                    $base64Value = base64_decode($property->value);
+
+                    if ($base64Value !== false) {
+                        $value = \GuzzleHttp\json_decode($base64Value);
+                    }
+
+                    $this->properties[$property->name] = $value;
+                }
+            }
         }
     }
 
-    public function __isset($var)
+    /**
+     * @return string
+     */
+    public function getUuid()
     {
-        return isset($this->{$var});
+        return $this->uuid;
     }
 
-    private static function rateLimitBust()
+    /**
+     * @return string
+     */
+    public function getName()
     {
-        sleep(1);
+        return $this->name;
+    }
+
+    /**
+     * @return array
+     */
+    public function getProperties()
+    {
+        return $this->properties;
+    }
+
+    /**
+     * @param $property
+     * @return bool
+     */
+    public function hasProperty($property)
+    {
+        return array_key_exists($property, $this->properties);
+    }
+
+    /**
+     * @param $property
+     * @return array|mixed|null
+     */
+    public function getProperty($property)
+    {
+        if ($this->hasProperty($property)) {
+            return $this->properties[$property];
+        }
+
+        return null;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getSkinUrl()
+    {
+        if ($textures = $this->getProperty('textures')) {
+            if (isset($textures->textures->SKIN) && isset($textures->textures->SKIN->url)) {
+                return $textures->textures->SKIN->url;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCapeUrl()
+    {
+        if ($textures = $this->getProperty('textures')) {
+            if (isset($textures->textures->CAPE) && isset($textures->textures->CAPE->url)) {
+                return $textures->textures->CAPE->url;
+            }
+        }
+
+        return null;
     }
 }
