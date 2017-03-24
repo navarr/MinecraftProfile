@@ -15,7 +15,10 @@
     ],
     "require": {
         "php": ">=5.5.0",
-        "guzzlehttp/guzzle": "^6.2.1"
+        "guzzlehttp/guzzle": "^6.2"
+    },
+    "suggest": {
+        "kevinrob/guzzle-cache-middleware": "For caching with the GuzzleAdapter"
     },
     "require-dev": {
         "phpunit/phpunit": "^3.0"
