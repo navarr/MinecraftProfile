@@ -16,6 +16,7 @@ class ApiClient
 {
     const PROFILE_API = 'https://sessionserver.mojang.com/session/minecraft/profile/%s';
     const UUID_API = 'https://api.mojang.com/profiles/minecraft';
+    const HISTORY_API = 'https://api.mojang.com/user/profiles/%s/%s';
 
     /**
      * Guzzle client instance.
@@ -69,6 +70,31 @@ class ApiClient
             throw new \RuntimeException('Error from API: '.$response->error.' on UUID '.$uuid);
         }
 
+        return $response;
+    }
+
+    /**
+     * History API provides access to previous names of the user identified by given uuid.
+     * 
+     * According to documentation the history API does not provide access to anything else
+     * apart from 'names'.
+     * 
+     * @see https://wiki.vg/Mojang_API#UUID_-.3E_Name_history
+     */
+    public function historyApi($uuid, $type = 'names')
+    {
+        $request = new Request('GET', sprintf(static::HISTORY_API, $uuid, $type));
+        $httpResponse = $this->client->send($request, $this->getOptions());
+        $response = @json_decode($httpResponse->getBody());
+
+        if ($httpResponse->getStatusCode() != 200) {
+            throw new \RuntimeException('Bad UUID '.$uuid);
+        } elseif (!$response) {
+            throw new \RuntimeException('Bad JSON from API: on UUID history '.$uuid.' - '.json_last_error_msg());
+        } elseif (isset($response->error)) {
+            throw new \RuntimeException('Error from API: '.$response->error.' on UUID history '.$uuid);
+        }
+        
         return $response;
     }
 }
