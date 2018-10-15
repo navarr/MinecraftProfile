@@ -2,7 +2,7 @@
 
 ## Usage
 
-Usage is super simple and well documented.  Here's a short example:
+Usage is super simple and well-documented.  Here's a short example:
 
 ```php
 use Navarr\Minecraft\Profile;
