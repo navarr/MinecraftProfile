@@ -48,6 +48,11 @@ class ProfileTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($profile->public);
         $this->assertEquals('http://textures.minecraft.net/texture/f2db938abac444ff315b95e9590184e0e2fe8941fdff559a4ab96cd54bcdd', $profile->capeUrl);
         $this->assertEquals('http://textures.minecraft.net/texture/91ebe08670c7af37a9ff439fb93290d75e35632dfbe3bf2ba3ac8494eb6e7', $profile->skinUrl);
+        $this->assertNull($profile->namesHistory);
+        
+        $this->mojangBuster();
+        $profile->previousUsernames();
+        $this->assertEquals($profile->namesHistory[0]->name, 'Navarr');
     }
 
     /* To Prevent 429 - Barely works */

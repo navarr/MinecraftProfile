@@ -21,6 +21,9 @@ class Profile
     public $public = true;
     public $capeUrl = null;
     public $skinUrl = null;
+    
+    /** @var array|null */
+    public $namesHistory = null;
 
     /**
      * @param string            $uuid
@@ -126,5 +129,28 @@ class Profile
     private static function rateLimitBust()
     {
         sleep(1);
+    }
+
+    /**
+     * Method for retrieving previous usernames of this profile.
+     * When called multiple times it will returned first result unless forced by setting 
+     * $force argument true.
+     * 
+     * @param bool              $force re-run retrieval instead of returning previous result
+     * @param Profile\ApiClient $apiClient
+     */
+    public function previousUsernames(bool $force = false, ApiClient $apiClient = null)
+    {
+        if ( $this->namesHistory && !$force) {
+            return $this->namesHistory;
+        }
+
+        if (is_null($apiClient)) {
+            $apiClient = static::createApiClient();
+        }
+
+        $this->namesHistory = $apiClient->historyApi($this->uuid, 'names');
+
+        return $this->namesHistory;
     }
 }

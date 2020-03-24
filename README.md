@@ -11,6 +11,7 @@ $profile = Profile::fromUuid('bd95beec116b4d37826c373049d3538b');
 $username = $profile->name;
 $cape = $profile->capeUrl;
 $skin = $profile->skinUrl;
+$names_history = $profile->namesHistory;
 ```
 
 ## Installation
