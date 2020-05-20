@@ -16,6 +16,7 @@ class ApiClient
 {
     const PROFILE_API = 'https://sessionserver.mojang.com/session/minecraft/profile/%s';
     const UUID_API = 'https://api.mojang.com/profiles/minecraft';
+    const HISTORY_API = 'https://api.mojang.com/user/profiles/%s/%s';
 
     /**
      * Guzzle client instance.
@@ -70,5 +71,27 @@ class ApiClient
         }
 
         return $response;
+    }
+
+    public function uuidHistory($uuid)
+    {
+        $request = new Request('GET', sprintf(static::HISTORY_API, $uuid, 'names'));
+        $httpResponse = $this->client->send($request, $this->getOptions());
+        $response = @json_decode($httpResponse->getBody());
+
+        if ($httpResponse->getStatusCode() != 200) {
+            throw new \RuntimeException('Bad UUID '.$uuid);
+        } elseif (!$response) {
+            throw new \RuntimeException('Bad JSON from API: on UUID history '.$uuid.' - '.json_last_error_msg());
+        } elseif (isset($response->error)) {
+            throw new \RuntimeException('Error from API: '.$response->error.' on UUID history '.$uuid);
+        }
+
+        $history = [];
+        foreach ($response as $name) {
+            $history[] = (string) $name->name;
+        }
+
+        return $history;
     }
 }
